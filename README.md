@@ -23,16 +23,16 @@ In addition to the handlers it provides three helper functions:
   %%...
   ```
 
-* `cowboy_oauth:allowed/2` which takes the response pf `get_token/1` as a first argument and tests if it has a permission passed as the second argument. It will take the scope into account!
+* `cowboy_oauth:resolve_bearer/1` wich resolves a raw bearer token (if it is not passed via the Authentication header) into the input required for `cowboy_oauth:allowed/2`
+  ```erlang
+  %%
+  AuthData = cowboy_oauth:resolve_bearer(<<"grizly bearer token">>),
+  %%...
+  ```
+  * `cowboy_oauth:allowed/2` which takes the response of the other two functions as a first argument and tests if it has a permission passed as the second argument. It will take the scope into account!
   ```erlang
   %%
   true = cowboy_oauth:allowed(AuthData, [<<"cloud">>, <<"vms">>, <<"create">>]),
   %%...
   ```
 
-* `cowboy_oauth:resolve_bearer/1` wich resolves a raw bearer token (if it is not passed via the Authentication header) into the input required for `allowed/2`
-  ```erlang
-  %%
-  AuthData = cowboy_oauth:resolve_bearer(<<"grizly bearer token">>),
-  %%...
-  ```
