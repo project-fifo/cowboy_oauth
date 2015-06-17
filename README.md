@@ -6,9 +6,9 @@ An example of including the endpoints can be found below. Please note that the t
 
 ```erlang
      {<<"/api/:version/oauth/token">>,
-      cowboy_oauth_token, [<<"/api/0.2.0/oauth/2fa">>]},
+      cowboy_oauth_token, []},
      {<<"/api/:version/oauth/auth">>,
-      cowboy_oauth_auth, []},
+      cowboy_oauth_auth, [<<"/api/0.2.0/oauth/2fa">>]},
      {<<"/api/:version/oauth/2fa">>,
       cowboy_oauth_2fa, []}
 ```
