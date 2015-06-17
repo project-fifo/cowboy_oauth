@@ -1,0 +1,17 @@
+{application, cowboy_oauth,
+ [
+  {description, ""},
+  {vsn, "0.1.0"},
+  {registered, []},
+  {applications, [
+                  kernel,
+                  stdlib,
+                  libsnarl,
+                  jsx,
+                  lager,
+                  erlydtl
+                 ]},
+  {env, [
+    {mfa_url, "/api/0.2.0/oauth/2fa"},
+    {mfa_token_lifetime, 120}]}
+ ]}.
