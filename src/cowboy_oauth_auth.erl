@@ -263,6 +263,7 @@ build_params3(R = #auth_req{user_uuid = OwnerUUID}, Acc)
   when OwnerUUID =/= undefined ->
     {ok, User} = ls_user:get(OwnerUUID),
     build_params4(R, [{user_name, ft_user:name(User)} | Acc]);
+
 build_params3(R, Acc) ->
     build_params4(R, Acc).
 

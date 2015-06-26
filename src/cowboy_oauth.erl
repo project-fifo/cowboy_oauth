@@ -20,6 +20,7 @@
          ]).
 
 -define(TOKEN_LIFETIME, 120). %% two minutes
+-define(JSON, {<<"content-type">>, <<"application/json">>}).
 
 allowed(undefined, _Permission) ->
     false;
@@ -71,19 +72,18 @@ redirected_authorization_code_response(Uri, Code, State, Req) ->
     cowboy_req:reply(302, [{<<"location">>, Location}], <<>>, Req).
 
 json_error_response(Error, Req) ->
-    H = [{<<"content-type">>, <<"application/json">>}],
     ErrorJSON = build_error(Error),
     ErrorBin = jsx:encode(ErrorJSON),
-    {Code, H1} =
+    {Code, H} =
         case Error of
             invalid_client ->
-                {401, [{<<"WWW-Authenticate">>, <<"Basic">>} | H]};
+                {401, [{<<"WWW-Authenticate">>, <<"Basic">>}, ?JSON]};
             unauthorized_client ->
-                {403, H};
+                {403, [?JSON]};
             _Other ->
-                {400, H}
+                {400, [?JSON]}
     end,
-    cowboy_req:reply(Code, H1, ErrorBin, Req).
+    cowboy_req:reply(Code, H, ErrorBin, Req).
 
 redirected_error_response(Uri, Error, undefined, Req) ->
     Params = [{<<"error">>, error_bin(Error)}],
@@ -111,7 +111,7 @@ access_refresh_token_response(AccessToken, Type, Expires, RefreshToken, Scope,
             {<<"expires_in">>, Expires},
             {<<"refresh_token">>, RefreshToken},
             {<<"scope">>, Scope}],
-    cowboy_req:reply(200, [], jsx:encode(JSON), Req).
+    cowboy_req:reply(200, [?JSON], jsx:encode(JSON), Req).
 
 
 redirected_access_token_response(Uri, Token, Type, Expires, Scope,
@@ -129,7 +129,7 @@ access_token_response(AccessToken, Type, Expires, Scope, Req) ->
             {<<"token_type">>, Type},
             {<<"expires_in">>, Expires},
             {<<"scope">>, Scope}],
-    cowboy_req:reply(200, [{<<"cache-control">>, <<"no-store">>}],
+    cowboy_req:reply(200, [?JSON, {<<"cache-control">>, <<"no-store">>}],
                      jsx:encode(JSON), Req).
 
 
