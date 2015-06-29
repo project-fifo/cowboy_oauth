@@ -36,3 +36,4 @@ In addition to the handlers it provides three helper functions:
   %%...
   ```
 
+The OAuth2 forms used can be configured via the environment parameters `oauth_form` and `oauth_2fa_form` defaults for the `.dtl` files can be found in the `templates` directory.

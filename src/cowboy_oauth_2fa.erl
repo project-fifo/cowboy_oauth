@@ -83,6 +83,8 @@ do_resolve_token(AuthReq = #mfa_req{method = post, otp_token = OTPToken,
 
 do_request(AuthReq = #mfa_req{method = get}, Req) ->
     Params = build_params(AuthReq),
+    Form = application:get_env(cowboy_oauth, oauth_2fa_form, oauth_2fa_form_dtl),
+    {ok, Reply}  = Form:render(Params),
     {ok, Reply}  = oauth_2fa_form_dtl:render(Params),
     cowboy_req:reply(200, [], Reply, Req);
 

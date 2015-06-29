@@ -111,7 +111,8 @@ update_scope(AuthReq = #auth_req{scope = Scope}, Req) ->
 
 do_request(AuthReq = #auth_req{method = get}, Req) ->
     Params = build_params(AuthReq),
-    {ok, Reply}  = oauth_login_form_dtl:render(Params),
+    Form = application:get_env(cowboy_oauth, oauth_form, oauth_login_form_dtl),
+    {ok, Reply}  = Form:render(Params),
     cowboy_req:reply(200, [], Reply, Req);
 
 do_request(AuthReq = #auth_req{response_type = code}, Req) ->
@@ -254,8 +255,10 @@ build_params1(R, Acc) ->
 
 build_params2(R = #auth_req{scope = Scope}, Acc)
   when Scope =/= undefined ->
+    Descs = scope_desc(Scope),
     build_params3(R, [{scope, cowboy_oauth:scope_to_list(Scope)},
-                      {scope_list, scope_desc(Scope)} | Acc]);
+                      {scope_list, Descs} | Acc]);
+
 build_params2(R, Acc) ->
     build_params3(R, Acc).
 
@@ -274,4 +277,4 @@ build_params4(_R, Acc) ->
     Acc.
 
 scope_desc(Scope) ->
-    [Desc || {_, Desc, _} <- ls_oauth:scope(Scope)].
+    [Desc || {_, Desc, _, _} <- ls_oauth:scope(Scope)].
