@@ -19,14 +19,20 @@
          resolve_bearer/1
          ]).
 
+-type auth() :: {binary(), binary(), list()}.
+
 -define(TOKEN_LIFETIME, 120). %% two minutes
 -define(JSON, {<<"content-type">>, <<"application/json">>}).
 
+-spec allowed(undefined | auth(), [binary()]) -> boolean().
 allowed(undefined, _Permission) ->
     false;
-allowed({User, ScopeP}, Permission) ->
+allowed({User, _, ScopeP}, Permission) ->
     libsnarlmatch:test_perms(Permission, ScopeP)
         andalso libsnarl:allowed(User, Permission).
+
+
+-spec get_token(Req) -> {undefined | auth(), Req}.
 
 get_token(Req) ->
     case cowboy_req:parse_header(<<"authorization">>, Req) of
@@ -36,16 +42,18 @@ get_token(Req) ->
             {undefined, Req1}
     end.
 
+
 resolve_bearer(Bearer) ->
     case ls_oauth:verify_access_token(Bearer) of
         {ok, Context} ->
             case {proplists:get_value(<<"resource_owner">>, Context),
-                  proplists:get_value(<<"scope">>, Context)} of
-                {undefined, _} ->
+                  proplists:get_value(<<"scope">>, Context),
+                  proplists:get_value(<<"client">>, Context)} of
+                {undefined, _, _} ->
                     undefined;
-                {UUID, Scope} ->
+                {UUID, Scope, Client} ->
                     SPerms = scope_perms(ls_oauth:scope(Scope), []),
-                    {UUID, SPerms}
+                    {UUID, Client, SPerms}
             end;
         E ->
             lager:warning("[oauth] could not resolve bearer: ~p", [E]),
