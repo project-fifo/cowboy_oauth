@@ -128,7 +128,7 @@ redirected_access_token_response(Uri, Token, Type, Expires, Scope,
               {<<"token_type">>, Type},
               {<<"expires_in">>, integer_to_binary(Expires)},
               {<<"state">>, State},
-              {<<"scope">>, Scope}],
+              {<<"scope">>, scope_to_list(Scope)}],
     Location = <<Uri/binary, "#", (cow_qs:qs(Params))/binary>>,
     cowboy_req:reply(302, [{<<"location">>, Location}], <<>>, Req).
 
@@ -193,6 +193,10 @@ errod_description(server_error) ->
        "Error HTTP status code cannot be returned to the client ",
        "via an HTTP redirect.)">>};
 
+%% We will return this if the connection to the upstream server was closed.
+errod_description(closed) ->
+    errod_description(temporarily_unavailable);
+
 errod_description(temporarily_unavailable) ->
     {<<"temporarily_unavailable">>,
      <<"The authorization server is currently unable to handle ",
@@ -200,6 +204,7 @@ errod_description(temporarily_unavailable) ->
        "of the server.  (This error code is needed because a 503 ",
        "Service Unavailable HTTP status code cannot be returned ",
        "to the client via an HTTP redirect.)">>};
+
 
 errod_description(Error) ->
     {<<"server_error">>,
