@@ -203,9 +203,15 @@ do_token(#auth_req{redirect_uri = Uri, state = State}, Req) ->
     cowboy_oauth:redirected_error_response(Uri, invalid_request, State, Req).
 
 
+do_token(Authentication, ClientID, URI, Scope, State, RedirectBase, Req) when
+      is_binary(ClientID) ->
+    {ok, C} = ls_client:lookup(ClientID),
+    UUID = ft_client:uuid(C),
+    do_token(Authentication, {UUID}, URI, Scope, State, RedirectBase, Req);
 
 do_token(Authentication, ClientID, URI, Scope, State, RedirectBase, Req) when
-      is_tuple(Authentication) ->
+      is_tuple(Authentication),
+      is_tuple(ClientID) ->
     case ls_oauth:authorize_password(Authentication, ClientID, URI, Scope) of
         {ok, Authorization = #a{resowner = UUID}} ->
             case ls_user:yubikeys(UUID) of
