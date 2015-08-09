@@ -126,7 +126,7 @@ redirected_access_token_response(Uri, Token, Type, Expires, Scope,
                                  State, Req) ->
     Params = [{<<"access_token">>, Token},
               {<<"token_type">>, Type},
-              {<<"expires_in">>, Expires},
+              {<<"expires_in">>, integer_to_binary(Expires)},
               {<<"state">>, State},
               {<<"scope">>, Scope}],
     Location = <<Uri/binary, "#", (cow_qs:qs(Params))/binary>>,
