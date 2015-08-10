@@ -92,8 +92,6 @@ do_request(TokenReq = #token_req{grant_type = client_credentials}, Req) ->
 do_request(TokenReq = #token_req{grant_type = refresh_token}, Req) ->
     do_refresh_token(TokenReq, Req);
 
-
-
 do_request(_, Req) ->
     cowboy_oauth:json_error_response(invalid_request, Req).
 

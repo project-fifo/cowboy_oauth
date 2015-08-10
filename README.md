@@ -45,7 +45,15 @@ The OAuth2 forms used can be configured via the environment parameters `oauth_fo
 
 The following examples are based on the CURL commands from [oauth2_webmachine](https://github.com/IvanMartinez/oauth2_webmachine)
 
-All API requests are made towards the endpoints as defined above
+The examples use the following conventions:
+
+* Auth endpoint - `http://192.168.1.41/api/0.2.0/oauth/auth`
+* Token endpoint - `http://192.168.1.41/api/0.2.0/oauth/token`
+* User login - `admin`
+* User password - `admin`
+* Client ID - `test`
+* Client Secret `test`
+* Client redirect URI - `http://localhost`
 
 ### Authorization Code Grant
 
@@ -66,10 +74,8 @@ location: http://localhost?code=6nZNUuYeBM7dfD0k45VF8ZnVKTZJRe2C&state=foo
 Use that code to request an access token
 
 ```bash
-## CURL
 curl -v -X POST http://192.168.1.41/api/0.2.0/oauth/token -d \
 "grant_type=authorization_code&client_id=test&client_secret=test&redirect_uri=http://localhost&code=6nZNUuYeBM7dfD0k45VF8ZnVKTZJRe2C"
-## HTTPie
 
 ```
 
@@ -93,7 +99,7 @@ http --form \
   POST http://192.168.1.41/api/0.2.0/oauth/auth \
   response_type=code client_id=test \
   redirect_uri=http://localhost \
-  scope='*' \
+  scope=* \
   state=foo \
   username=admin \
   password=admin
@@ -119,7 +125,7 @@ http --form \
 
 The response will look like this:
 
-```son
+```json
 {
     "access_token": "AehTS7wrcTp4JY1CZchsXbGyZdmBUvk2",
     "expires_in": 86400,
@@ -143,26 +149,160 @@ curl -v -X POST http://192.168.1.41/api/0.2.0/oauth/auth -d \
 
 The server responds with a HTTP 302 status, and the access token is in the Location field of the header
 
-    Location: http://anyclient.uri?access_token=bHcbA5Q8OHlZyODcR4JwO7JOrD8bto2K&token_type=bearer&expires_in=3600&scope=root1.z root2.b&state=foo
+```http
+location: http://localhost#access_token=W9QNN10ZdFNSt7kDcbINtBYWb7brNXqE&token_type=bearer&expires_in=86400&state=foo&scope=%2A
+```
+
+#### HTTPie
+
+```bash
+http --form \
+  POST http://192.168.1.41/api/0.2.0/oauth/auth \
+  response_type=token \
+  client_id=test \
+  redirect_uri=http://localhost \
+  scope=* \
+  state=foo \
+  username=admin \
+  password=admin
+```
+
+The server responds with a HTTP 302 status, and the access token is in the Location field of the header
+
+```http
+location: http://localhost#access_token=oCuag0G5VzMZ4AydyYfe9wcjqe9JnqKw&token_type=bearer&expires_in=86400&state=foo&scope=%2A
+```
 
 ### Resource Owner Password Credentials Grant
 
+#### CURL
+
 Send an access token request with
 
-    $ curl -v -X POST http://127.0.0.1:8000/owner_token -d "grant_type=password&username=User1&password=Password1&scope=root1.z+root2.c.d"
+```bash
+curl -v -X POST http://192.168.1.41/api/0.2.0/oauth/token -d \
+"grant_type=password&username=admin&password=admin&scope=*"
+```
+
+The response will look like this:
+
+```json
+{
+    "access_token": "JaYoUbKFdU6hCJBqzr4iayM63fvPk0Wk",
+    "expires_in": 86400,
+    "scope": "*",
+    "token_type": "bearer"
+}
+```
+
+#### HTTTPie
+
+```bash
+http --form POST http://192.168.1.41/api/0.2.0/oauth/token \
+  grant_type=password \
+  username=admin \
+  password=admin \
+  scope=*
+```
+
+The response will look like this:
+
+```json
+{
+    "access_token": "JaYoUbKFdU6hCJBqzr4iayM63fvPk0Wk",
+    "expires_in": 86400,
+    "scope": "*",
+    "token_type": "bearer"
+}
+```
 
 ### Client Credentials Grant
 
 Send an access token request with
 
-    $ curl -v -X POST http://127.0.0.1:8000/client_token -d "grant_type=client_credentials&client_id=Client1&client_secret=Secret1&scope=root.a.c"
+#### CURL
+
+```bash
+curl -v -X POST http://192.168.1.41/api/0.2.0/oauth/token -d \
+"grant_type=client_credentials&client_id=test&client_secret=test&scope=*"
+```
+
+The response will look like this:
+
+```json
+{
+    "access_token": "8bNpl12bdnup9oUCfpR7UXOI0EJ2dGty",
+    "expires_in": 86400,
+    "scope": "*",
+    "token_type": "bearer"
+}
+```
+
+#### HTTPie
+
+```bash
+http --form POST http://192.168.1.41/api/0.2.0/oauth/token \
+  grant_type=client_credentials \
+  client_id=test \
+  client_secret=test \
+  scope=*
+```
+
+The response will look like this:
+
+```json
+{
+    "access_token": "8bNpl12bdnup9oUCfpR7UXOI0EJ2dGty",
+    "expires_in": 86400,
+    "scope": "*",
+    "token_type": "bearer"
+}
+```
 
 ### Refreshing an Access Token
 
 If the Authorization Code Grant flow is performed succesfully, the response to the final request should include a refresh token as follows
 
-    "refresh_token":"EydKXViAHx7aAedoiGsKrrlBQneMpjpf"
+    "refresh_token":"gcSwNN369G2Ks8cet2CQTzYdlebpQtkD"
 
 Obtain a new access token from the refresh token with 
 
-    $ curl -v -X POST http://127.0.0.1:8000/refresh_token -d "grant_type=refresh_token&client_id=Client1&client_secret=Secret1&refresh_token=EydKXViAHx7aAedoiGsKrrlBQneMpjpf&scope=root1.z+root2.a"
+#### CURL
+
+```bash
+curl -v -X POST http://192.168.1.41/api/0.2.0/oauth/token -d \
+"grant_type=refresh_token&client_id=test&client_secret=test&refresh_token=gcSwNN369G2Ks8cet2CQTzYdlebpQtkD&scope=*"
+```
+
+The response will look like this:
+
+```json
+{
+    "access_token": "fNsfwTV5lgvF1cWdTiGIphwUUsbI4mSU",
+    "expires_in": 86400,
+    "scope": "*",
+    "token_type": "bearer"
+}
+```
+
+#### HTTPie
+```bash
+http --form POST http://192.168.1.41/api/0.2.0/oauth/token \
+  grant_type=refresh_token \
+  client_id=test \
+  client_secret=test \
+  refresh_token=gcSwNN369G2Ks8cet2CQTzYdlebpQtkD \
+  scope=*
+```
+
+
+The response will look like this:
+
+```json
+{
+    "access_token": "fNsfwTV5lgvF1cWdTiGIphwUUsbI4mSU",
+    "expires_in": 86400,
+    "scope": "*",
+    "token_type": "bearer"
+}
+```
