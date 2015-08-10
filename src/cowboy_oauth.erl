@@ -32,6 +32,7 @@ allowed({User, _, ScopeP}, Permission) ->
         andalso libsnarl:allowed(User, Permission).
 
 
+
 -spec get_token(Req) -> {undefined | auth(), Req}.
 
 get_token(Req) ->
@@ -110,8 +111,6 @@ error_bin(E) when is_atom(E) ->
 error_bin(_) ->
     <<"argh!">>.
 
-
-
 access_refresh_token_response(AccessToken, Type, Expires, RefreshToken, Scope,
                               Req) ->
     JSON = [{<<"access_token">>, AccessToken},
@@ -140,12 +139,10 @@ access_token_response(AccessToken, Type, Expires, Scope, Req) ->
     cowboy_req:reply(200, [?JSON, {<<"cache-control">>, <<"no-store">>}],
                      jsx:encode(JSON), Req).
 
-
 build_error(Error) ->
     {ErrorName, Desc} = errod_description(Error),
     [{<<"error">>, ErrorName},
      {<<"error_description">>, Desc}].
-
 
 errod_description(invalid_request) ->
     {<<"invalid_request">>,
@@ -204,7 +201,6 @@ errod_description(temporarily_unavailable) ->
        "of the server.  (This error code is needed because a 503 ",
        "Service Unavailable HTTP status code cannot be returned ",
        "to the client via an HTTP redirect.)">>};
-
 
 errod_description(Error) ->
     {<<"server_error">>,
