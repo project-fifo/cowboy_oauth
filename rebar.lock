@@ -40,7 +40,7 @@
   0},
  {<<"libsnarl">>,
   {git,"http://github.com/project-fifo/libsnarl.git",
-       {ref,"229dab64c59a947323ec67957a5f657032969814"}},
+       {ref,"a98d285103e167af71face5580a86b6c53e21ada"}},
   0},
  {<<"erlydtl">>,
   {git,"https://github.com/erlydtl/erlydtl.git",
