@@ -258,7 +258,7 @@ a:hover{
               Welcome back {{user_name}},
               {% else %}
               <input type="text" name="username" class="username" placeholder="Enter your email" />
-              <input type="password" name="password"  placeholder="Password" />
+              <input type="password" name="password" placeholder="Password" />
               {% endif %}
               <center>
                 The client <br/>
