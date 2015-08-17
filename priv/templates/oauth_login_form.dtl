@@ -253,12 +253,12 @@ a:hover{
       <div class="outer-screen">
         <div class="inner-screen">
           <div class="form">
-            <form action="/api/0.2.0/oauth/auth" method="post">
+            <form method="post">
               {% if user_name %}
               Welcome back {{user_name}},
               {% else %}
               <input type="text" name="username" class="username" placeholder="Enter your email" />
-              <input type="password" name="password" placeholder="Password" />
+              <input type="password" name="password" class="username"  placeholder="Password" />
               {% endif %}
               <center>
                 The client <br/>

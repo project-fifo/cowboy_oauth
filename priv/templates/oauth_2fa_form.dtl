@@ -250,7 +250,7 @@ a:hover{
       <div class="outer-screen">
         <div class="inner-screen">
           <div class="form">
-            <form action="/api/0.2.0/oauth/2fa" method="post">
+            <form method="post">
               <input type="text" name="fifo_otp" class="username" placeholder="OTP" />
               <!-- Hidden values passed on fromt he server -->
               <input type="hidden" name="response_type" value="{{response_type}}" />

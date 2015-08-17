@@ -8,7 +8,7 @@ An example of including the endpoints can be found below. Please note that the t
 {<<"/api/:version/oauth/token">>,
  cowboy_oauth_token, []},
 {<<"/api/:version/oauth/auth">>,
- cowboy_oauth_auth, [<<"/api/0.2.0/oauth/2fa">>]},
+ cowboy_oauth_auth, [<<"/api/0.2.0/oauth/token">>, <<"/api/2/oauth/2fa">>]},
 {<<"/api/:version/oauth/2fa">>,
  cowboy_oauth_2fa, []}
 ```
