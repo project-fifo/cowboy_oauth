@@ -21,41 +21,41 @@
           state,
           method,
           user_uuid,
-          urls,
+          redirect_base,
           bearer
          }).
 
 init(_Transport, Req, []) ->
 	{ok, Req, <<"/">>};
-init(_Transport, Req, [TokenURL, MFAURL]) ->
-	{ok, Req, {TokenURL, MFAURL}}.
+init(_Transport, Req, [RedirectBase]) ->
+	{ok, Req, RedirectBase}.
 
 terminate(_Reason, _Req, _State) ->
 	ok.
 
-handle(Req, URLs) ->
+handle(Req, RedirectBase) ->
     {ok, Req3} = case cowboy_req:method(Req) of
                      %% TODO: This should prompt a permission form
                      %% And check for the bearer token
                      {<<"GET">>, Req2} ->
-                         do_get(Req2, URLs);
+                         do_get(Req2, RedirectBase);
                      %% TODO: This should do the actual redirect etc.
                      {<<"POST">>, Req2} ->
-                         do_post(Req2, URLs);
+                         do_post(Req2, RedirectBase);
                      {_, Req2} ->
                          cowboy_req:reply(405, Req2)
                  end,
     lager:info("[oath:auth] Request finished!"),
-    {ok, Req3, URLs}.
+    {ok, Req3, RedirectBase}.
 
-do_get(Req, URLs) ->
+do_get(Req, RedirectBase) ->
     {QSVals, Req2} = cowboy_req:qs_vals(Req),
-    AuthReq = #auth_req{method = get, urls = URLs},
+    AuthReq = #auth_req{method = get, redirect_base = RedirectBase},
     do_vals(AuthReq, QSVals, Req2).
 
-do_post(Req, URLs)->
+do_post(Req, RedirectBase)->
     {ok, PostVals, Req2} = cowboy_req:body_qs(Req),
-    AuthReq = #auth_req{method = post, urls = URLs},
+    AuthReq = #auth_req{method = post, redirect_base = RedirectBase},
     do_vals(AuthReq, PostVals, Req2).
 
 do_vals(AuthReq, Vals, Req) ->
@@ -132,10 +132,10 @@ do_code(#auth_req{
            user_uuid = UserUUID,
            scope = Scope,
            state = State,
-           urls = URLs}, Req)
+           redirect_base = RedirectBase}, Req)
   when is_binary(UserUUID),
        is_binary(ClientID) ->
-    do_code({UserUUID}, ClientID, URI, Scope, State, URLs, Req);
+    do_code({UserUUID}, ClientID, URI, Scope, State, RedirectBase, Req);
 
 do_code(#auth_req{
            client_id = ClientID,
@@ -144,16 +144,16 @@ do_code(#auth_req{
            password = Password,
            scope = Scope,
            state = State,
-           urls = URLs}, Req)
+           redirect_base = RedirectBase}, Req)
   when is_binary(Username),
        is_binary(Password),
        is_binary(ClientID) ->
-    do_code({Username, Password}, ClientID, URI, Scope, State, URLs, Req);
+    do_code({Username, Password}, ClientID, URI, Scope, State, RedirectBase, Req);
 
 do_code(#auth_req{redirect_uri = Uri, state = State}, Req) ->
     cowboy_oauth:redirected_error_response(Uri, invalid_request, State, Req).
 
-do_code(User, ClientID, URI, Scope, State, {_, MFAUrl}, Req) ->
+do_code(User, ClientID, URI, Scope, State, RedirectBase, Req) ->
     case ls_oauth:authorize_code_request(User, ClientID, URI, Scope) of
         {ok, Authorization = #a{resowner = UUID}} ->
             case ls_user:yubikeys(UUID) of
@@ -164,7 +164,7 @@ do_code(User, ClientID, URI, Scope, State, {_, MFAUrl}, Req) ->
                 {ok, _} ->
                     %%TODO
                     cowboy_oauth:redirected_2fa_request(
-                      <<"code">>, UUID, Authorization, State, URI, MFAUrl,
+                      <<"code">>, UUID, Authorization, State, URI, RedirectBase,
                       Req)
             end;
         {error, unauthorized_client} ->
@@ -180,10 +180,10 @@ do_token(#auth_req{
             user_uuid = UserUUID,
             scope = Scope,
             state = State,
-            urls = URLs}, Req)
+            redirect_base = RedirectBase}, Req)
   when is_binary(UserUUID),
        is_binary(ClientID) ->
-    do_token({UserUUID}, ClientID, URI, Scope, State, URLs, Req);
+    do_token({UserUUID}, ClientID, URI, Scope, State, RedirectBase, Req);
 
 do_token(#auth_req{
             client_id = ClientID,
@@ -192,23 +192,24 @@ do_token(#auth_req{
             password = Password,
             scope = Scope,
             state = State,
-            urls = URLs}, Req)
+            redirect_base = RedirectBase}, Req)
   when is_binary(Username),
        is_binary(Password),
        is_binary(ClientID) ->
-    do_token({Username, Password}, ClientID, URI, Scope, State, URLs, Req);
+    do_token({Username, Password}, ClientID, URI, Scope, State, RedirectBase,
+             Req);
 
 do_token(#auth_req{redirect_uri = Uri, state = State}, Req) ->
     cowboy_oauth:redirected_error_response(Uri, invalid_request, State, Req).
 
 
-do_token(Authentication, ClientID, URI, Scope, State, URLs, Req) when
+do_token(Authentication, ClientID, URI, Scope, State, RedirectBase, Req) when
       is_binary(ClientID) ->
     {ok, C} = ls_client:lookup(ClientID),
     UUID = ft_client:uuid(C),
-    do_token(Authentication, {UUID}, URI, Scope, State, URLs, Req);
+    do_token(Authentication, {UUID}, URI, Scope, State, RedirectBase, Req);
 
-do_token(Authentication, ClientID, URI, Scope, State, {_, MFAUrl}, Req) when
+do_token(Authentication, ClientID, URI, Scope, State, RedirectBase, Req) when
       is_tuple(Authentication),
       is_tuple(ClientID) ->
     case ls_oauth:authorize_password(Authentication, ClientID, URI, Scope) of
@@ -230,17 +231,18 @@ do_token(Authentication, ClientID, URI, Scope, State, {_, MFAUrl}, Req) when
                                                                   Req);
                 {ok, _} ->
                     cowboy_oauth:redirected_2fa_request(
-                      <<"token">>, UUID, Authorization, State, URI, MFAUrl, Req)
+                      <<"token">>, UUID, Authorization, State, URI,
+                      RedirectBase, Req)
             end;
         {error, Error} ->
             cowboy_oauth:redirected_error_response(URI, Error, State, Req)
     end.
 
-build_params(R = #auth_req{response_type = code, urls = {FormURL, _}}) ->
-    build_params(R, [{response_type, <<"code">>}, {form_target, FormURL}]);
+build_params(R = #auth_req{response_type = code}) ->
+    build_params(R, [{response_type, <<"code">>}]);
 
-build_params(R = #auth_req{response_type = token, urls = {FormURL, _}}) ->
-    build_params(R, [{response_type, <<"token">>}, {form_target, FormURL}]);
+build_params(R = #auth_req{response_type = token}) ->
+    build_params(R, [{response_type, <<"token">>}]);
 build_params(_) ->
     [{error, <<"illegal request type">>}].
 
