@@ -8,6 +8,7 @@
          redirected_error_response/4,
          json_error_response/2,
          scope_to_list/1,
+         scope_perms/2,
          list_to_scope/1,
          decode_grant_type/1,
          decode_response_type/1,
@@ -63,9 +64,8 @@ resolve_bearer(Bearer) ->
 
 scope_perms([], Acc) ->
     lists:usort(Acc);
-scope_perms([{_, _, _, Perms} | R], Acc) ->
+scope_perms([#{permissions := Perms} | R], Acc) ->
     scope_perms(R, Acc ++ Perms).
-
 
 redirected_2fa_request(Type, UUID, Authorization, State, URI, RedirectBase, Req) ->
     Lifetime = application:get_env(cowboy_oauth, mfa_token_lifetime, ?TOKEN_LIFETIME),
