@@ -44,6 +44,11 @@ get_token(Req) ->
             {undefined, Req1}
     end.
 
+-spec resolve_bearer(Bearer::binary()) ->
+                            undefined |
+                            {UUID :: fifo:user_id(),
+                             Client :: fifo:client_id() | undefined,
+                             Scope :: fifo:scope_list()}.
 
 resolve_bearer(Bearer) ->
     case ls_oauth:verify_access_token(Bearer) of

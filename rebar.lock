@@ -22,7 +22,7 @@
  {<<"lager">>,{pkg,<<"lager">>,<<"2.1.1">>},0},
  {<<"libsnarl">>,
   {git,"http://github.com/project-fifo/libsnarl.git",
-       {ref,"812bead5982bf4fabe7dce592eb421a29a6b132a"}},
+       {ref,"ec4d9c24b1d42b269d4c25fa9f8865261c36d77e"}},
   0},
  {<<"libsnarlmatch">>,{pkg,<<"libsnarlmatch">>,<<"0.1.6">>},1},
  {<<"mdns_client">>,{pkg,<<"mdns_client">>,<<"0.1.4">>},2},
