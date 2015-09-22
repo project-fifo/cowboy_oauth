@@ -54,7 +54,8 @@ resolve_bearer(Bearer) ->
                 {undefined, _, _} ->
                     undefined;
                 {UUID, Scope, Client} ->
-                    SPerms = scope_perms(ls_oauth:scope(Scope), []),
+                    {ok, Scopes} = ls_oauth:scope(Scope),
+                    SPerms = scope_perms(Scopes, []),
                     {UUID, Client, SPerms}
             end;
         E ->

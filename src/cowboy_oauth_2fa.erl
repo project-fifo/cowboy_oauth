@@ -12,13 +12,13 @@
 
 
 -record(mfa_req, {
-          method,
-          redirect_uri,
-          otp_token,
-          response_type,
-          otp,
+          method :: get | post,
+          redirect_uri :: binary() | undefined,
+          otp_token :: binary() | undefined,
+          response_type = unknown_response_type :: code | token | unknown_response_type,
+          otp :: binary() | undefined,
           state,
-          token_data
+          token_data :: tuple()
          }).
 
 

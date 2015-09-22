@@ -156,12 +156,13 @@ do_code(#auth_req{redirect_uri = Uri, state = State}, Req) ->
 do_code(User, ClientID, URI, Scope, State, RedirectBase, Req) ->
     case ls_oauth:authorize_code_request(User, ClientID, URI, Scope) of
         {ok, Authorization = #a{resowner = UUID}} ->
-            case ls_user:yubikeys(UUID) of
-                {ok, []} ->
+            {ok, U} = ls_user:get(UUID),
+            case ft_user:yubikeys(U) of
+                [] ->
                     {ok, Response} = ls_oauth:issue_code(Authorization),
                     {ok, Code} = oauth2_response:access_code(Response),
                     cowboy_oauth:redirected_authorization_code_response(URI, Code, State, Req);
-                {ok, _} ->
+                _ ->
                     %%TODO
                     cowboy_oauth:redirected_2fa_request(
                       <<"code">>, UUID, Authorization, State, URI, RedirectBase,
@@ -214,9 +215,9 @@ do_token(Authentication, ClientID, URI, Scope, State, RedirectBase, Req) when
       is_tuple(ClientID) ->
     case ls_oauth:authorize_password(Authentication, ClientID, URI, Scope) of
         {ok, Authorization = #a{resowner = UUID}} ->
-            case ls_user:yubikeys(UUID) of
-                {ok, []} ->
-
+            {ok, U} = ls_user:get(UUID),
+            case ft_user:yubikeys(U) of
+                [] ->
                     {ok, Response} = ls_oauth:issue_token(Authorization),
                     {ok, AccessToken} = oauth2_response:access_token(Response),
                     {ok, Type} = oauth2_response:token_type(Response),
@@ -229,7 +230,7 @@ do_token(Authentication, ClientID, URI, Scope, State, RedirectBase, Req) when
                                                                   VerifiedScope,
                                                                   State,
                                                                   Req);
-                {ok, _} ->
+                _ ->
                     cowboy_oauth:redirected_2fa_request(
                       <<"token">>, UUID, Authorization, State, URI,
                       RedirectBase, Req)
@@ -286,4 +287,5 @@ build_params4(_R, Acc) ->
     Acc.
 
 scope_desc(Scope) ->
-    [Desc || {_, Desc, _, _} <- ls_oauth:scope(Scope)].
+    {ok, Scopes} = ls_oauth:scope(Scope),
+    [Desc || #{desc := Desc} <- Scopes].
