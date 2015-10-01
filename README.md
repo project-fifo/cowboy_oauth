@@ -195,7 +195,7 @@ The response will look like this:
 }
 ```
 
-#### HTTTPie
+#### HTTPie
 
 ```bash
 http --form POST http://192.168.1.41/api/0.2.0/oauth/token \
