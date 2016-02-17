@@ -73,8 +73,10 @@ scope_perms([], Acc) ->
 scope_perms([#{permissions := Perms} | R], Acc) ->
     scope_perms(R, Acc ++ Perms).
 
-redirected_2fa_request(Type, UUID, Authorization, State, URI, RedirectBase, Req) ->
-    Lifetime = application:get_env(cowboy_oauth, mfa_token_lifetime, ?TOKEN_LIFETIME),
+redirected_2fa_request(Type, UUID, Authorization, State, URI, RedirectBase,
+                       Req) ->
+    Lifetime = application:get_env(cowboy_oauth, mfa_token_lifetime,
+                                   ?TOKEN_LIFETIME),
     {ok, Code} = ls_token:add(Lifetime, {Type, UUID, Authorization, URI}),
     Params = [{<<"response_type">>, Type}, {<<"fifo_otp_token">>, Code},
               {<<"state">>, State}, {<<"redirect_uri">>, URI}],

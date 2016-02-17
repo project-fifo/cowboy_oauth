@@ -15,7 +15,8 @@
           method :: get | post,
           redirect_uri :: binary() | undefined,
           otp_token :: binary() | undefined,
-          response_type = unknown_response_type :: code | token | unknown_response_type,
+          response_type = unknown_response_type :: code | token
+                                                 | unknown_response_type,
           otp :: binary() | undefined,
           state,
           token_data :: tuple()
@@ -78,12 +79,14 @@ do_resolve_token(AuthReq = #mfa_req{method = post, otp_token = OTPToken,
             ls_token:delete(OTPToken),
             do_request(AuthReq#mfa_req{token_data = TokenData}, Req);
         _ ->
-            cowboy_oauth:redirected_error_response(URI, invalid_request, State, Req)
+            cowboy_oauth:redirected_error_response(
+              URI, invalid_request, State, Req)
     end.
 
 do_request(AuthReq = #mfa_req{method = get}, Req) ->
     Params = build_params(AuthReq),
-    Form = application:get_env(cowboy_oauth, oauth_2fa_form, oauth_2fa_form_dtl),
+    Form = application:get_env(
+             cowboy_oauth, oauth_2fa_form, oauth_2fa_form_dtl),
     {ok, Reply}  = Form:render(Params),
     {ok, Reply}  = oauth_2fa_form_dtl:render(Params),
     cowboy_req:reply(200, [], Reply, Req);
@@ -108,11 +111,12 @@ do_code(#mfa_req{
         {ok, _UUID} ->
             {ok, Response} = ls_oauth:issue_code(Authorization),
             {ok, Code} = oauth2_response:access_code(Response),
-            cowboy_oauth:redirected_authorization_code_response(URI, Code, State, Req);
+            cowboy_oauth:redirected_authorization_code_response(
+              URI, Code, State, Req);
         _ ->
-            cowboy_oauth:redirected_error_response(URI, access_denied, State, Req)
+            cowboy_oauth:redirected_error_response(
+              URI, access_denied, State, Req)
     end;
-
 
 do_code(#mfa_req{redirect_uri = Uri, state = State}, Req) ->
     cowboy_oauth:redirected_error_response(Uri, invalid_request, State, Req).
@@ -133,7 +137,8 @@ do_token(#mfa_req{
             cowboy_oauth:redirected_access_token_response(
               URI, AccessToken, Type, Expires, VerifiedScope, State, Req);
         _ ->
-            cowboy_oauth:redirected_error_response(URI, access_denied, State, Req)
+            cowboy_oauth:redirected_error_response(
+              URI, access_denied, State, Req)
     end;
 
 do_token(#mfa_req{redirect_uri = Uri, state = State}, Req) ->

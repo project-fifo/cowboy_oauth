@@ -23,10 +23,10 @@
          }).
 
 init(_Transport, Req, []) ->
-	{ok, Req, undefined}.
+    {ok, Req, undefined}.
 
 terminate(_Reason, _Req, _State) ->
-	ok.
+    ok.
 
 handle(Req, State) ->
     {ok, Req3} = case cowboy_req:method(Req) of
@@ -98,10 +98,11 @@ do_request(_, Req) ->
 do_authorization_code(#token_req{code = Code, client_id = ClientId,
                                  client_secret = ClientSecret,
                                  redirect_uri = RedirectURI},
-           Req) when is_binary(Code),
-                     is_binary(ClientId),
-                     is_binary(ClientSecret) ->
-    case ls_oauth:authorize_code_grant({ClientId, ClientSecret}, Code, RedirectURI) of
+                      Req) when is_binary(Code),
+                                is_binary(ClientId),
+                                is_binary(ClientSecret) ->
+    case ls_oauth:authorize_code_grant(
+           {ClientId, ClientSecret}, Code, RedirectURI) of
         {ok, Authorization} ->
             {ok, Response} = ls_oauth:issue_token_and_refresh(Authorization),
             {ok, AccessToken} = oauth2_response:access_token(Response),
@@ -155,7 +156,8 @@ do_client_credentials(#token_req{client_id = ClientId,
                                  scope = Scope}, Req)
   when is_binary(ClientId),
        is_binary(ClientSecret) ->
-    case ls_oauth:authorize_client_credentials({ClientId, ClientSecret}, Scope) of
+    case ls_oauth:authorize_client_credentials(
+           {ClientId, ClientSecret}, Scope) of
         {ok, Authorization} ->
             {ok, Response} = ls_oauth:issue_token(Authorization),
             {ok, Token} = oauth2_response:access_token(Response),

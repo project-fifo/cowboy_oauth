@@ -26,12 +26,12 @@
          }).
 
 init(_Transport, Req, []) ->
-	{ok, Req, <<"/">>};
+    {ok, Req, <<"/">>};
 init(_Transport, Req, [RedirectBase]) ->
-	{ok, Req, RedirectBase}.
+    {ok, Req, RedirectBase}.
 
 terminate(_Reason, _Req, _State) ->
-	ok.
+    ok.
 
 handle(Req, RedirectBase) ->
     {ok, Req3} = case cowboy_req:method(Req) of
@@ -81,7 +81,8 @@ do_basic_auth(AuthReq, Req) ->
     {ok, Auth, Req1} = cowboy_req:parse_header(<<"authorization">>, Req),
     case Auth of
         {<<"basic">>, {Username, Password}} ->
-            AuthReq1 = AuthReq#auth_req{username = Username, password = Password},
+            AuthReq1 = AuthReq#auth_req{username = Username,
+                                        password = Password},
             update_scope(AuthReq1, Req1);
         {<<"bearer">>, Bearer} ->
             AuthReq1 = AuthReq#auth_req{bearer = Bearer},
@@ -99,7 +100,7 @@ check_token(AuthReq = #auth_req{bearer = Bearer}, Req) ->
                 OwnerUUID ->
                     AuthReq1 = AuthReq#auth_req{user_uuid = OwnerUUID},
                     update_scope(AuthReq1, Req)
-          end;
+            end;
         _ ->
             cowboy_oauth:json_error_response(access_denied, Req)
     end.
@@ -148,7 +149,8 @@ do_code(#auth_req{
   when is_binary(Username),
        is_binary(Password),
        is_binary(ClientID) ->
-    do_code({Username, Password}, ClientID, URI, Scope, State, RedirectBase, Req);
+    do_code({Username, Password}, ClientID, URI, Scope, State,
+            RedirectBase, Req);
 
 do_code(#auth_req{redirect_uri = Uri, state = State}, Req) ->
     cowboy_oauth:redirected_error_response(Uri, invalid_request, State, Req).
@@ -161,7 +163,8 @@ do_code(User, ClientID, URI, Scope, State, RedirectBase, Req) ->
                 [] ->
                     {ok, Response} = ls_oauth:issue_code(Authorization),
                     {ok, Code} = oauth2_response:access_code(Response),
-                    cowboy_oauth:redirected_authorization_code_response(URI, Code, State, Req);
+                    cowboy_oauth:redirected_authorization_code_response(
+                      URI, Code, State, Req);
                 _ ->
                     %%TODO
                     cowboy_oauth:redirected_2fa_request(
