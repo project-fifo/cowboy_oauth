@@ -1,20 +1,13 @@
-{application, cowboy_oauth,
- [
-  {description, "OAuth2 endpoints for cowboy and snarl."},
-  {vsn, "0.2.11"},
-  {registered, []},
-  {applications, [
-                  kernel,
-                  stdlib,
-                  libsnarl,
-                  jsx,
-                  lager,
-                  erlydtl
-                 ]},
-  {env, [
-         {mfa_url, "/api/0.2.0/oauth/2fa"},
-         {mfa_token_lifetime, 120},
-         {oauth_form, oauth_login_form_dtl},
-         {oauth_2fa_form, oauth_2fa_form_dtl}
-        ]}
- ]}.
+{application,cowboy_oauth,
+             [{description,"OAuth2 endpoints for cowboy and snarl."},
+              {vsn,"0.2.12"},
+              {registered,[]},
+              {applications,[kernel,stdlib,libsnarl,jsx,lager,erlydtl]},
+              {env,[{mfa_url,"/api/0.2.0/oauth/2fa"},
+                    {mfa_token_lifetime,120},
+                    {oauth_form,oauth_login_form_dtl},
+                    {oauth_2fa_form,oauth_2fa_form_dtl}]},
+              {maintainers,["Heinz N. Gies"]},
+              {licenses,["CDDL"]},
+              {links,[{"Github",
+                       "https://github.com/project-fifo/cowboy_oauth"}]}]}.
