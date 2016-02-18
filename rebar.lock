@@ -1,6 +1,6 @@
-[{<<"cowboy">>,{pkg,<<"cowboy">>,<<"1.0.2">>},0},
+[{<<"cowboy">>,{pkg,<<"cowboy">>,<<"1.0.4">>},0},
  {<<"cowlib">>,{pkg,<<"cowlib">>,<<"1.0.2">>},1},
- {<<"erlydtl">>,{pkg,<<"erlydtl">>,<<"0.11.1">>},0},
+ {<<"erlydtl2">>,{pkg,<<"erlydtl2">>,<<"0.11.1">>},0},
  {<<"fifo_dt">>,{pkg,<<"fifo_dt">>,<<"0.1.66">>},2},
  {<<"fifo_spec">>,{pkg,<<"fifo_spec">>,<<"0.1.27">>},1},
  {<<"fifo_utils">>,{pkg,<<"fifo_utils">>,<<"0.1.20">>},3},
@@ -12,9 +12,9 @@
  {<<"libsnarlmatch">>,{pkg,<<"libsnarlmatch">>,<<"0.1.7">>},1},
  {<<"mdns_client">>,{pkg,<<"mdns_client">>,<<"0.1.7">>},2},
  {<<"mdns_client_lib">>,{pkg,<<"mdns_client_lib">>,<<"0.1.33">>},1},
- {<<"oauth2">>,{pkg,<<"oauth2_erlang">>,<<"0.6.1">>},0},
+ {<<"oauth2_erlang">>,{pkg,<<"oauth2_erlang">>,<<"0.6.1">>},0},
  {<<"pooler">>,{pkg,<<"pooler">>,<<"1.4.0">>},2},
  {<<"quickrand">>,{pkg,<<"quickrand">>,<<"1.5.1">>},5},
  {<<"ranch">>,{pkg,<<"ranch">>,<<"1.2.1">>},1},
  {<<"riak_dt">>,{pkg,<<"riak_dt">>,<<"2.1.1">>},3},
- {<<"uuid">>,{pkg,<<"uuid_erl">>,<<"1.5.1">>},4}].
+ {<<"uuid_erl">>,{pkg,<<"uuid_erl">>,<<"1.5.1">>},4}].
