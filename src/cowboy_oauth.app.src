@@ -1,6 +1,6 @@
 {application,cowboy_oauth,
              [{description,"OAuth2 endpoints for cowboy and snarl."},
-              {vsn,"0.2.12"},
+              {vsn,"0.2.13"},
               {registered,[]},
               {applications,[kernel,stdlib,libsnarl,jsx,lager,erlydtl]},
               {env,[{mfa_url,"/api/0.2.0/oauth/2fa"},
